@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+name:数据源名
+auth:表示认证方式，一般为Container
+type:表示数据源类型使用标准的javax.sql.DataSource
+maxActive:表示连接池当中最大激活的数据库连接
+maxIdle:表示最大的空闲连接数
+maxWait:当池的数据库连接已经被占用的时候，最大等待时间
+username:表示数据库用户名
+password:表示数据库用户的密码
+driverClassName:表示JDBC DRIVER
+url:表示数据库URL地址
+-->
+<Context>
+ <Resource  name="jdbc/mysql"  
+	        auth="Container" 
+	        type="javax.sql.DataSource"
+			maxActive="20" 
+			maxIdle="10" 
+			maxWait="5000" 
+			username="root" 
+			password="1262"
+			driverClassName="com.mysql.jdbc.Driver" 
+			url="jdbc:mysql://localhost:3306/testweb" />
+</Context>

@@ -1,0 +1,56 @@
+不要用IE.否则可能不出效果
+
+js实现ajax
+160430
+1.index.jsp里通过ajax加载helloAjax.txt里的内容
+2.post_ajax.jsp通过post请求发送ajax请求
+3.test_html.jsp传输格式为html的ajax t1.html
+  注意大小写.onclick()全小写  
+  XMLHttpRequest()
+  request.onreadystatechange=function(){}
+  innerHTML
+4.test_html2.jsp和一相同
+
+5.test_xml.jsp读取t2.xml中的数据
+创建html节点
+
+5.test_json.jsp
+json(JavaScript Object Notation)一种简单的数据格式.比xml更轻巧.是js的原生格式.
+json规则{名:值}
+
+6.test_json2.jsp
+处理页面返回一个json数据
+
+160505
+
+jquery实现ajax
+1.01test_load.jsp
+01test_load2.jsp
+
+2.test_getjson.jsp
+获取json
+
+3.AjaxLogin下
+http://localhost:8080/MyAjax/AjaxLogin/do_login.jsp
+do_login.jsp里$.ajax
+请求到login.html页面.且向LoginServlet发送请求判断用户名是否可用.不可用提示红字
+
+****************重要*************************
+4.AtAjax下
+http://localhost:8080/MyAjax/AtAjax/02login.jsp
+	02login.jsp
+	里当用户名文本框change
+	向LoginServlet.java(里有几个已经定义的用户)中发送post的ajax请求
+	查看用户名是否可用
+
+160509
+5.AtAjax下
+	03book.jsp 通过点按钮
+	通过$.getJSON向
+	addToCarServlet发送ajax请求
+	注意返回值json必须key,value都是字符串.否则获取不到
+
+6.AtAjax下
+	04city.jsp 实现Ajax联动
+
+6.test里的TestJackson.将java对象转为json对象
