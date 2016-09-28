@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,27 +19,16 @@ import com.zc.dao.SearchAllDao;
 import com.zc.entity.City;
 import com.zc.entity.Person;
 import com.zc.entity.School;
+import com.zc.util.PageBean;
 
-/**
- * Servlet implementation class CityServlet
- */
-@WebServlet(name = "cityServlet", urlPatterns = { "/cityServlet" })
 public class CityServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		this.doPost(request,response);
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		request.setCharacterEncoding("utf-8");
 		String method=request.getParameter("method");
 		System.out.println("---------方法"+method);
@@ -58,7 +46,6 @@ public class CityServlet extends HttpServlet {
 			try {
 				this.getSchool(request, response);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -66,15 +53,24 @@ public class CityServlet extends HttpServlet {
 			try {
 				this.dealSearchAll(request, response);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}else if("changeSchool".equals(method)){
 			try {
 				this.dealChangeSchool(request, response);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}
+		}else if("searchAllNoPage".equals(method)){
+			try {
+				this.dealSearchAllNoPage(request, response);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}else if("getCityByMobile".equals(method)){
+			try {
+				this.getCityByMobile(request, response);
+			} catch (Exception e) {
 			}
 		}
 	}
@@ -82,31 +78,30 @@ public class CityServlet extends HttpServlet {
 	protected void getCity(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		// TODO Auto-generated method stub
 		CityDao dao=new CityDao();
-		List<Map<String,Object>> citys=dao.queryAllCity();
+		 List<City> citys = dao.queryAllCity();
 		System.out.println(citys);
-		
-		
-		List<City> mCitys=new ArrayList<City>();
-		for(Map<String,Object> map:citys)
-		{
-			City city=new City();
-			city.setCityId((Integer) map.get("city_id"));
-			city.setCityName((String) map.get("city_name"));
-			mCitys.add(city);
-		}
-		
-		
-		
 		ObjectMapper mapper=new ObjectMapper();
 		//3.调用mapper的writeValueAsString()方法把一个对象转为一个json字符串
-		String jsonCitys=mapper.writeValueAsString(mCitys);
+		String jsonCitys=mapper.writeValueAsString(citys);
 		System.out.println(jsonCitys);
-		
 		response.setContentType("application/json;charset=UTF-8");
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().print(jsonCitys.toString());
-		
-		
+	}
+	
+	//测试手机
+	protected void getCityByMobile(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// TODO Auto-generated method stub
+		CityDao dao=new CityDao();
+		 List<City> citys = dao.queryAllCity();
+		System.out.println(citys);
+		ObjectMapper mapper=new ObjectMapper();
+		//3.调用mapper的writeValueAsString()方法把一个对象转为一个json字符串
+		String jsonCitys=mapper.writeValueAsString(citys);
+		System.out.println(jsonCitys);
+		response.setContentType("application/json;charset=UTF-8");
+		response.setCharacterEncoding("UTF-8");
+		response.getOutputStream().write(jsonCitys.toString().getBytes("utf-8"));
 	}
 	
 	
@@ -147,9 +142,21 @@ public class CityServlet extends HttpServlet {
 		System.out.println("dealSearchAll"+"-->"+cityId);
 		String _schoolId=request.getParameter("schoolId");
 		Integer schoolId=Integer.parseInt(_schoolId);
+		
+		String _currentPage=request.getParameter("currentPage");
+		String _pageSize=request.getParameter("pageSize");
+		int currentPage=1;
+		int pageSize=10;
+		
+		if(_currentPage!=null)
+		{currentPage=Integer.parseInt(_currentPage);}
+		if(_pageSize!=null)
+		{pageSize=Integer.parseInt(_pageSize);}
+		
+		
 		SearchAllDao dao=new SearchAllDao();
 		System.out.println("调用dao");
-		List<Person> persons=dao.searchAllPerson(schoolId);
+		PageBean<List<Person>> persons=dao.searchAllPerson(schoolId,currentPage,pageSize);
 		System.out.println(persons);
 		ObjectMapper mapper=new ObjectMapper();
 		String jsonPersons = mapper.writeValueAsString(persons);
@@ -172,5 +179,17 @@ public class CityServlet extends HttpServlet {
 		//json字符串必须{"a":"b","c":"d"}转义字符吧
 		System.out.println("{\"result\":\""+result+"\"}");
 		response.getWriter().print("{\"result\":\""+result+"\"}");
+	}
+	
+	protected void dealSearchAllNoPage(HttpServletRequest request, HttpServletResponse response) throws Exception{
+		String _schoolId=request.getParameter("schoolId");
+		int schoolId = Integer.parseInt(_schoolId);
+		SearchAllDao dao=new SearchAllDao();
+		List<Person> persons = dao.searchAllNoPage(schoolId);
+		ObjectMapper mapper=new ObjectMapper();
+		String jsonPersons = mapper.writeValueAsString(persons);
+		System.out.println("调用dealSearchAllNoPage后"+jsonPersons);
+		response.setContentType("application/json;charset=UTF-8");
+		response.getWriter().print(jsonPersons);
 	}
 }

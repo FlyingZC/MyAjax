@@ -22,9 +22,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			 //初始化时不显示
 			 show:false,
 		    //背景不可点击
-		     backdrop:false,
-		     //handle: ".modal-header",   
-		    // cursor: 'move',  
+		     backdrop:false, 
 		   });
 		 
 		 $("#myModal").draggable({
@@ -34,6 +32,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		//$("#city option:not(:first)").remove();
 		//用来存放schools信息
 		var jsonSchool=null;
+		var schoolId=null;
 		//获取下拉框中的city.刚进入页面就获取city信息.这样点下拉框就能显示出来
 		var url="<%=basePath%>cityServlet";
 		var args={"time":new Date(),"method":"getCity"};
@@ -54,6 +53,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			//在上面添加节点时.把数据库中获取的id值作为value
 			var cityId=$(this).val();
 			$("#school option:not(:first)").remove();
+			//将页面表格清空
+			$("tr:not(thead tr)").remove();
 			var url="<%=basePath%>cityServlet";
 			var args={"time":new Date(),"method":"getSchool","cityId":cityId};
 			$.getJSON(url,args,function(data){
@@ -66,10 +67,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 					//alert(data.schoolName);
 					//alert(jsonSchool.schoolName);
 					for(var i=0;i<data.length;i++){
-						var schoolId=data[i].schoolId;
+						var schoolIds=data[i].schoolId;
 						var schoolName=data[i].schoolName;
 						//alert(jsonSchool[i].schoolName);
-						$("#school").append("<option value='"+schoolId+"'>"+schoolName+"</option>");
+						$("#school").append("<option value='"+schoolIds+"'>"+schoolName+"</option>");
 					}
 				}
 			});
@@ -88,28 +89,35 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				//每次搜索把不是标题的行清空
 				$("tr:not(thead tr)").remove();
 				var url="<%=basePath%>cityServlet";
+				var currentPage;
+				var totalPages;
 				var cityId=$("#city").val();
-				var schoolId=$("#school").val();
-				var args={"time":new Date(),"method":"searchAll","cityId":cityId,"schoolId":schoolId};
-				$.getJSON(url,args,function(data){
+				schoolId=$("#school").val();
+				var args={"time":new Date(),"method":"searchAll","cityId":cityId,"schoolId":schoolId,"currentPage":"1","pageSize":"3"};
+				$.getJSON(url,args,function(jsonData){
 					//[{"personId":8,"personName":"qw","personAge":3,"schoolId":2},{"personId":9,"personName":"rtt","personAge":34,"schoolId":2},{"personId":10,"personName":"ada","personAge":21,"schoolId":2},{"personId":11,"personName":"wqe","personAge":12,"schoolId":2},{"personId":12,"personName":"werr","personAge":21,"schoolId":2}]
-	
+	//{"currentPage":1,"pageSize":10,"totalPages":4,"totalRows":31,"data":[{"personId":4,"personName":"erer","personAge":3434,"schoolId":1},{"personId":5,"personName":"zzz","personAge":2132131,"schoolId":1}]}
+						currentPage=jsonData.currentPage;
+						totalPages=jsonData.totalPages;
+						var data=jsonData.data;
+						//分页栏显示的第几页初始化为1
+						$("#page_current").html(currentPage);
+						pageDisabled();
+						//alert("currentPage"+currentPage+"totalPages"+totalPages+"schoolId"+schoolId+"jsonSchool.schoolId"+jsonSchool[1].schoolId);
 					for(var i=0;i<data.length;i++){
+				
 						var personId=data[i].personId;
 						var personName=data[i].personName;
 						var personAge=data[i].personAge;
-						var schoolId=data[i].schoolId;
+						schoolId=data[i].schoolId;
 						var j=i+1;
 						$("#stu").append("<tr id='hang"+personId+"'><td>"+j+"</td><td>"+personId+"</td><td>"+personName+"</td><td>"+personAge+"</td><td>"+schoolId +"<td></tr>");
-						if(personId<=5){
-							$("#hang"+personId).append("<td><button type='button' id='' class='btn btn-primary btn_tochange' data-toggle='modal' data-target='#myModal'>分配学校</button></td>");
-						}else{
-							$("#hang"+personId).append("<td><button type='button' class='btn btn-danger' data-toggle='modal' data-target='#myModal'>调换学校</button><button type='button' class='btn btn-success' data-toggle='modal' data-target='#myModal'>撤销学校</button></td>");
-						}
+						$("#hang"+personId).append("<td><button type='button' id='' class='btn btn-primary btn_tochange' data-toggle='modal' data-target='#myModal'>编辑</button></td>");
+						$("#hang"+personId).append("<td><button type='button' id='' class='btn btn-danger btn_delete'>删除</button></td>");
 					}
 					
 					//点按钮
-					var id=-1;
+					
 					//弹出修改模态框的按钮
 					$(".btn_tochange").click(function(){
 						var parentTr=$(this).parent().parent();
@@ -125,36 +133,139 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							$("#choose_school").append("<option>"+jsonSchool[k].schoolName+"</option>");
 						}
 					});
-					//模态框中提交修改
-					$("#mySubmit").click(function(){
-						var schoolId=-1;
-						for(var k=0;k<jsonSchool.length;k++){
-							if(jsonSchool[k].schoolName==$("#choose_school").val()){
-								schoolId=jsonSchool[k].schoolId;
-							}
-						}
+					
+						
+						//点击分页查询
+						$(".pagination a").click(function(){
+							$("#btn_searchAll").click(function(){
+								currentPage=1;
+							});
+							//alert("pagination"+currentPage);
+							if($(this).is($("#page_first"))){
+								if(currentPage==1){
+									alert("已经是第一页了");
+									return false;
+								}else{
+								currentPage=1;
+								}
+								//alert("page_first"+currentPage);
+							}else if($(this).is($("#page_prev"))){
+								//分页需要改变
+								if(currentPage==1){
+									alert("已经是第一页了");
+									return false;	
+								}else{
+								currentPage=currentPage-1;
+								}
+								//alert(currentPage);
+							}else if($(this).is($("#page_current"))){
+								alert("已经是当前页了");
+								return false;
+							}else if($(this).is($("#page_next"))){
+								if(currentPage==totalPages){
+									alert("已经是最后一页了");
+									return false;
+								}else{
+								currentPage=currentPage+1;
+								}
+								//alert(currentPage);
+							}else if($(this).is($("#page_last"))){
+								if(currentPage==totalPages){
+									alert("已经是最后一页了");
+									return false;	
+								}else{
+								currentPage=totalPages;
+								}
+								//alert(currentPage);
+							}	
+							var args={"time":new Date(),"method":"searchAll","cityId":cityId,"schoolId":schoolId,"currentPage":currentPage,"pageSize":"3"};
+							//点分页查询
+							$.getJSON(url,args,function(jsonData){
+								//每次搜索把不是标题的行清空
+								$("tr:not(thead tr)").remove();
+								$("#page_current").html(currentPage);
+								pageDisabled();
+								currentPage=jsonData.currentPage;
+								totalPages=jsonData.totalPages;
+								var data=jsonData.data;
+								//alert(currentPage);
+								//alert("currentPage"+currentPage+"totalPages"+totalPages+"schoolId"+schoolId+"jsonSchool.schoolId"+jsonSchool[1].schoolId);
+							for(var i=0;i<data.length;i++){
+						
+								var personId=data[i].personId;
+								var personName=data[i].personName;
+								var personAge=data[i].personAge;
+								var schoolId=data[i].schoolId;
 
-						var url="<%=basePath%>cityServlet";
-						var args={"personId":id,"schoolId":schoolId,"method":"changeSchool","date":new Date()};
-						//alert(args);
-						$.getJSON(url,args,function(data){
-							var result=data.result;
-							if(result=="true"){
-								$("#hang"+id).remove();
-								$("tbody tr").each(function(i){								
-									//alert($(this).html());
-									$(this).find("td").eq(0).text(i+1);
-								}); 
-								alert("修改成功");	
-							}else{
-								alert("修改失败");
-							};
+								var j=i+1;
+								$("#stu").append("<tr id='hang"+personId+"'><td>"+j+"</td><td>"+personId+"</td><td>"+personName+"</td><td>"+personAge+"</td><td>"+schoolId +"<td></tr>");
+								$("#hang"+personId).append("<td><button type='button' id='' class='btn btn-primary btn_tochange' data-toggle='modal' data-target='#myModal'>编辑</button></td>");
+								$("#hang"+personId).append("<td><button type='button' id='' class='btn btn-danger btn_delete'>删除</button></td>");
+							}
+							});//End  $.getJSON
+							
+							return false;
+						});//End $(".pagination *").click 分页
+						
+						
+						//模态框中提交修改
+						$("#mySubmit").click(function(){
+							for(var k=0;k<jsonSchool.length;k++){
+								if(jsonSchool[k].schoolName==$("#choose_school").val()){
+									schoolId=jsonSchool[k].schoolId;
+								}
+							}
+
+							var url="<%=basePath%>cityServlet";
+							var args={"personId":id,"schoolId":schoolId,"method":"changeSchool","date":new Date()};
+							//alert(args);
+							$.getJSON(url,args,function(data){
+								var result=data.result;
+								if(result=="true"){
+									$("#hang"+id).remove();
+									$("tbody tr").each(function(i){								
+										//alert($(this).html());
+										$(this).find("td").eq(0).text(i+1);
+									}); 
+									alert("修改成功");	
+								}else{
+									alert("修改失败");
+								};
+							});//End-$("#mySubmit").click
+							
+							
+						});	//	End$(".btn_tochange").click
+						
+						//按钮删除
+						$(".btn_delete").click(function(){
+							var r=confirm("确定要删除吗");
+							var url="<%=basePath%>cityServlet";
+							var args={"personId":id,"schoolId":schoolId,"method":"deletePerson","date":new Date()};
+							if(r==true){
+								$.getJSON(url,args,function(data){
+									
+								});
+							}
 						});
-					});		
+						
+						//分页
+						function pageDisabled(){
+							 if(currentPage==1){
+								 $(".pagination li:not(:eq(2))").removeClass("disabled");
+								$(".pagination li:lt(2)").addClass("disabled");
+							}else if(currentPage==totalPages){
+								$(".pagination li:not(:eq(2))").removeClass("disabled");
+								$(".pagination li:gt(2)").addClass("disabled");
+							}
+							else{
+								$(".pagination li:not(:eq(2))").removeClass("disabled");
+							}
+						}	
 				});
 			}
 		});
-	})
+	});
+	
 </script>
 </head>
 <body>
@@ -218,6 +329,16 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							<thead><tr><td>序号</td><td>编号</td><td>姓名</td><td>年龄</td><td>学校编号</td><td>操作</td></tr></thead>
 							<tr></tr>
 						</table>
+					</div>
+					
+					<div class="panel-footer">
+						<ul class="pagination">
+						  <li class="disabled"><a id="page_first" href="#">&laquo;</a></li>
+						  <li class="disabled"><a id="page_prev" href="#">&lt;</a></li>
+						  <li class="active disabled"><a id="page_current" href="#">1</a></li>
+						  <li><a id="page_next"  href="#">&gt;</a></li>
+						  <li><a id="page_last" href="#">&raquo;</a></li>
+						</ul>
 					</div>
 				
 

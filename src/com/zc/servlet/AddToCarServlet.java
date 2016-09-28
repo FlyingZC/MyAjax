@@ -1,10 +1,8 @@
 package com.zc.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,25 +10,14 @@ import javax.servlet.http.HttpSession;
 
 import com.zc.entity.ShoppingCar;
 
-/**
- * Servlet implementation class AddToCarServlet
- */
-@WebServlet(name = "addToCarServlet", urlPatterns = { "/addToCarServlet" })
 public class AddToCarServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		this.doPost(request, response);
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		//1.获取请求参数id,price
 		String bookName=request.getParameter("bookName");
 		System.out.println(bookName);

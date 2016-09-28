@@ -17,7 +17,7 @@ public class SchoolDao {
 	public List<Map<String,Object>> queryAllSchool(int cityId) throws Exception
 	{
 		QueryRunner runner =new QueryRunner(DataSourceHelper.getSource());
-		String sql=" select schoolId,schoolName from school where sch_city_id=? ";
+		String sql=" select schoolId,schoolName from school where cityId=? ";
 		return runner.query(sql, new MapListHandler(),cityId);
 		
 	}

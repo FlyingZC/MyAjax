@@ -31,11 +31,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 				$("#bookName").text(data.bookName);
 				$("#totalBookNumber").text(data.totalBookNumber);
 				$("#totalMoney").text(data.totalMoney);
-				
 			});
-			
 		});
-		
 	})
 </script>
 

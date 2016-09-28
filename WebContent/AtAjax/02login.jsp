@@ -15,26 +15,16 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
 <script type="text/javascript">
 	$(function(){
-		//$(":input[name='username']").(function(){
-		//	var val=$(this).val();
-		//	if(val=$(this).defaultValue){
-		//		$(this).val("");
-		//	}
-	//	}).
-		
 		$(":input[name='username']").change(function(){
 			var val=$(this).val();
 			val=$.trim(val);
 			if(val !=""){
 				var url="<%=basePath%>loginServlet";
-				var args={"username":val,"time":new Date(),"action":"checkUser"};
+				var args={"txtName":val,"time":new Date(),"op":"userValidHtm"};
 				$.post(url,args,function(data){		
-					alert(args.username);
 					$("#message").html(data);
 				});
 			}
-				
-			
 		});
 	})
 </script>

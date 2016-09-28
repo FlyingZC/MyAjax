@@ -1,13 +1,12 @@
 package com.zc.util;
 
-import java.util.List;
 
 public class PageBean<T> {
 	private int currentPage;
 	private int pageSize;
 	private int totalPages;
 	private int totalRows;
-	private List<T> data;
+	private T data;
 	public PageBean() {
 		super();
 	}
@@ -36,10 +35,10 @@ public class PageBean<T> {
 	public void setTotalRows(int totalRows) {
 		this.totalRows = totalRows;
 	}
-	public List<T> getData() {
+	public T getData() {
 		return data;
 	}
-	public void setData(List<T> data) {
+	public void setData(T data) {
 		this.data = data;
 	}
 	

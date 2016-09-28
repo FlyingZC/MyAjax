@@ -11,29 +11,54 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.RowProcessor;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 import com.zc.entity.Person;
 import com.zc.util.DataSourceHelper;
+import com.zc.util.PageBean;
 
 public class SearchAllDao {
-	public List<Person> searchAllPerson(int schoolId){
-		List<Person> result=null;
+	public PageBean<List<Person>> searchAllPerson(int schoolId,int currentPage,int pageSize){
+		PageBean<List<Person>> pageBean=new PageBean<List<Person>>();
+		pageBean.setCurrentPage(currentPage);
+		pageBean.setPageSize(pageSize);
+		
 		try {
 			QueryRunner runner=new QueryRunner(DataSourceHelper.getSource());
-			String sql="SELECT * FROM person WHERE schoolId=?";
-		
+			String sql1="select count(*) as totalRows from person  where schoolId=?";
+			Long rows=runner.query(sql1,new ScalarHandler<Long>("totalRows"),schoolId);
+			//totalRows可以计算出总页数
+			pageBean.setTotalRows(rows.intValue());
+			int start=(currentPage-1)*pageSize;
+			String sql="SELECT * FROM person WHERE schoolId=? limit ?,?";//limit a,b起始位置.显示条数
+			
 			BeanListHandler<Person> handler=new BeanListHandler<Person>(Person.class);
 			
-			result = runner.query(sql,handler,schoolId);
-			for(Person p:result){
-				System.out.println(p.getPersonName()+p.getSchoolId());
+			List<Person> _data = runner.query(sql,handler,schoolId,start,pageSize);
+			for(Person p:_data){
+				System.out.println("调用SearchAllDao--->"+p.getPersonName());
 			}
+			
+			pageBean.setData(_data);
 			
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return result;
+		return pageBean;
 	}
+	
+	public List<Person> searchAllNoPage(int schoolId){
+		try {
+			QueryRunner runner = new QueryRunner(DataSourceHelper.getSource());
+			String sql="select * from person where schoolId=?";
+			return runner.query(sql, new BeanListHandler<Person>(Person.class),schoolId);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 }

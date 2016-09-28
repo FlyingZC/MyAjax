@@ -1,8 +1,6 @@
 package com.zc.dao;
 
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.naming.factory.DataSourceLinkFactory.DataSourceHandler;
-
 import com.zc.util.DataSourceHelper;
 
 public class PersonDao {
@@ -13,7 +11,6 @@ public class PersonDao {
 			runner.update(sql,schoolId,personId);
 			return true;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
